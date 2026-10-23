@@ -286,12 +286,21 @@ else:
                     st.metric("Estimated churn probability", f"{probability * 100:.1f}%")
                     st.write("The model estimates a lower likelihood of churn, though the customer could still leave.")
             with r2:
+                # Plotly Express needs a DataFrame when names/values/color are column names.
+                gauge_data = pd.DataFrame({
+                    "Status": ["Churn probability", "Remaining probability"],
+                    "Probability": [probability * 100, 100 - probability * 100],
+                })
                 gauge = px.pie(
-                    names=["Churn probability", "Remaining probability"],
-                    values=[probability * 100, 100 - probability * 100],
+                    gauge_data,
+                    names="Status",
+                    values="Probability",
                     hole=0.72,
-                    color="names",
-                    color_discrete_map={"Churn probability": "#f97373", "Remaining probability": "#293244"}
+                    color="Status",
+                    color_discrete_map={
+                        "Churn probability": "#f97373",
+                        "Remaining probability": "#293244",
+                    },
                 )
                 gauge.update_traces(textinfo="none", hovertemplate="%{label}: %{value:.1f}%<extra></extra>")
                 gauge.update_layout(showlegend=True, margin=dict(t=10, b=10, l=10, r=10), annotations=[
